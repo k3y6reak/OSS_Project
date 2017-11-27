@@ -18,3 +18,39 @@ angr는 이러한 문제를 해결하기 위한 요소가 있으며, 이 문서�
 ### 시작하기
 
 설치 방법은 [여기]()에서 찾을 수 있습니다.
+
+### 인용
+
+angr는 학업에 사용하는 경우 논문을 인용해 주세요.
+
+```
+@article{shoshitaishvili2016state,
+  title={SoK: (State of) The Art of War: Offensive Techniques in Binary Analysis},
+  author={Shoshitaishvili, Yan and Wang, Ruoyu and Salls, Christopher and Stephens, Nick and Polino, Mario and Dutcher, Audrey and Grosen, John and Feng, Siji and Hauser, Christophe and Kruegel, Christopher and Vigna, Giovanni},
+  booktitle={IEEE Symposium on Security and Privacy},
+  year={2016}
+}
+
+@article{stephens2016driller,
+  title={Driller: Augmenting Fuzzing Through Selective Symbolic Execution},
+  author={Stephens, Nick and Grosen, John and Salls, Christopher and Dutcher, Audrey and Wang, Ruoyu and Corbetta, Jacopo and Shoshitaishvili, Yan and Kruegel, Christopher and Vigna, Giovanni},
+  booktitle={NDSS},
+  year={2016}
+}
+
+@article{shoshitaishvili2015firmalice,
+  title={Firmalice - Automatic Detection of Authentication Bypass Vulnerabilities in Binary Firmware},
+  author={Shoshitaishvili, Yan and Wang, Ruoyu and Hauser, Christophe and Kruegel, Christopher and Vigna, Giovanni},
+  booktitle={NDSS},
+  year={2015}
+}
+
+```
+
+### 지원
+
+angr를 사용하는데 도움을 받으려면 아래를 참고해 주세요.
+
+- Mail: angr@lists.cs.ucsb.edu
+- Slack channel: [angr.slack.com](https://angr.slack.com/)
+- IRC channel: #angr on [freenode](https://freenode.net/)
