@@ -20,17 +20,18 @@ accurateCFG는 아래와 같은 명령어를 통해 만들어낼 수 있습니�
 >>> cfg = b.analyses.CFGAccurate(keep_state=True)
 ```
 또한 CFG의 커스터마이징을 위한 옵션들도 존재합니다.
-|옵션|설명|
-|:-------|:--------|
-|context_sensitivity_level|이는 context sensitivity의 분석 레벨을 세팅합니다. 이에 대한 정보를 확인하고싶다면 아래의 context sensitivity level 섹션을 살펴보세요. default 값은 1입니다.|
-|starts|분석할 때 entry point로서 사용하기 위한 주소들의 리스트입니다.|
-|avoid_runs|분석할 때 무시하고 진행하기 위한 주소들의 리스트입니다.|
-|call_depth|몇몇 number calls에서 분석의 depth를 제한합니다. 이것은 "call\_depth를 1로 세팅"하면서 직접 점프할 수 있는 특정한 함수들을 체크할 때 유용합니다.|
-|initial_state|initial state는 CFG에 제공될 수 있으며, 이는 분석을 통해 사용됩니다.|
-|keep_state|메모리를 절약하기 위해 기본적으로 각각의 basic block의 state가 삭제됩니다. 만약 _keep\_state_가 True라면, 이 state는 CFGNode에 저장됩니다.|
-|enable_symbolic_back_traversal|indirect jump를 해결하기 위해 집중할지의 여부|
-|enable_advanced_backward_slicing|direct jump를 해결하기 위해 집중할지의 여부|
-|more!|최근에 업데이트 되는 옵션들에 대한 정보는 b.analyses.CFGAccurate의 docstring을 확인하세요.|
+
+| 옵션 | 설명 |
+| ------- | ---- |
+| context_sensitivity_level | 이는 context sensitivity의 분석 레벨을 세팅합니다. 이에 대한 정보를 확인하고싶다면 아래의 context sensitivity level 섹션을 살펴보세요. default 값은 1입니다. |
+| starts | 분석할 때 entry point로서 사용하기 위한 주소들의 리스트입니다. |
+| avoid_runs | 분석할 때 무시하고 진행하기 위한 주소들의 리스트입니다. |
+| call_depth | 몇몇 number calls에서 분석의 depth를 제한합니다. 이것은 "call\_depth를 1로 세팅"하면서 직접 점프할 수 있는 특정한 함수들을 체크할 때 유용합니다. |
+| initial_state | initial state는 CFG에 제공될 수 있으며, 이는 분석을 통해 사용됩니다. |
+| keep_state | 메모리를 절약하기 위해 기본적으로 각각의 basic block의 state가 삭제됩니다. 만약 _keep\_state_가 True라면, 이 state는 CFGNode에 저장됩니다. |
+| enable_symbolic_back_traversal | indirect jump를 해결하기 위해 집중할지의 여부 |
+| enable_advanced_backward_slicing | direct jump를 해결하기 위해 집중할지의 여부 |
+| more! | 최근에 업데이트 되는 옵션들에 대한 정보는 b.analyses.CFGAccurate의 docstring을 확인하세요. |
 
 ###Context Sensitivity Level
 
@@ -66,12 +67,13 @@ void main()
 위의 샘플은 main>alpha>puts, main>alpha>error>puts, main>beta>puts,  main>beta>error>puts의 네 가지 콜 체인이 있습니다. 이 경우 angr은 두 체인은 실행할 수 있지만 큰 바이너리에서는 불가능합니다. 따라서 angr은 context sensitivity level에 의해 제한된 상태로 블록을 실행합니다. 즉, 각각의 함수는 호출된 고유한 context마다 재분석합니다.
 
 예를 들어, 위의 puts() 함수는 다양한 context sensitivity level에서 아래와 같은 context로 분석됩니다.
-|레벨|의미|Contexts|
-|:--------|:--------||
-|0|Callee-only|`puts`|
-|1|One caller, plus callee|`alpha>puts` `beta>puts` `error>puts`|
-|2|Two callers, plus callee|`alpha>error>puts` `main>alpha>puts` `beta>error>puts` `main>beta>puts`|
-|3|Three callers, plus callee|`main>alpha>error>puts` `main>alpha>puts` `main>beta>error>puts` `main>beta>puts`|
+
+| 레벨 | 의미 | Contexts |
+| -------- | -------- | --- |
+| 0 | Callee-only | `puts` |
+| 1 | One caller, plus callee | `alpha>puts` `beta>puts` `error>puts` |
+| 2 | Two callers, plus callee | `alpha>error>puts` `main>alpha>puts` `beta>error>puts` `main>beta>puts` |
+| 3 | Three callers, plus callee | `main>alpha>error>puts` `main>alpha>puts` `main>beta>error>puts` `main>beta>puts` |
 
 context sensitivity level을 올리게 되면 CFG로부터 더 많은 정보를 얻을 수 있다는 장점이 있습니다. 예를 들어, context sensitivity가 1일 경우 CFG는 alpha에서 호출될 때 puts는 alpha를 return하며, error가 호출되면 puts에서 alpha를 return해줍니다. context sensitivity가 0일 경우 CFG는 간단하게 puts는 alpha, beta, 그리고 error를 return해줍니다. 이것은 구체적으로 IDA에서 사용되는 context sensitivity level입니다. context sensitivity level을 높이게 되면 분석 시간이 기하급수적으로 증가한다는 단점이 있습니다.
 
