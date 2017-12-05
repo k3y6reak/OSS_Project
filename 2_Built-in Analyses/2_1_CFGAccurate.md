@@ -1,6 +1,6 @@
 # 3_Built-in Analyses
 
-@(CFGAccurate)[Backward Slicing, Function Identifier]
+## CFGAccurate
 
 이 장에서는 angr의 context sensitivity나  Function Manager와 같은 중요한 개념을 살펴보면서  angr의 **CFGAccurate** 분석에 대해 자세하게 알아볼 것입니다.
 
@@ -33,7 +33,7 @@ accurateCFG는 아래와 같은 명령어를 통해 만들어낼 수 있습니�
 | enable_advanced_backward_slicing | direct jump를 해결하기 위해 집중할지의 여부 |
 | more! | 최근에 업데이트 되는 옵션들에 대한 정보는 b.analyses.CFGAccurate의 docstring을 확인하세요. |
 
-###Context Sensitivity Level
+### Context Sensitivity Level
 
 angr은 모든 basic block을 실행하고 그 블록들을 검토하면서 CFG를 생성합니다. 이로 인해 몇몇 문제점들이 발생합니다.  basic block은 다른 context들에서 다르게 작동할 수 있습니다.  예를 들어, block이 함수의 return으로 종료된다면 해당 basic block을 포함하는 함수의 다른 caller에 따라 return하는 대상이 달라집니다.
 
@@ -77,7 +77,7 @@ void main()
 
 context sensitivity level을 올리게 되면 CFG로부터 더 많은 정보를 얻을 수 있다는 장점이 있습니다. 예를 들어, context sensitivity가 1일 경우 CFG는 alpha에서 호출될 때 puts는 alpha를 return하며, error가 호출되면 puts에서 alpha를 return해줍니다. context sensitivity가 0일 경우 CFG는 간단하게 puts는 alpha, beta, 그리고 error를 return해줍니다. 이것은 구체적으로 IDA에서 사용되는 context sensitivity level입니다. context sensitivity level을 높이게 되면 분석 시간이 기하급수적으로 증가한다는 단점이 있습니다.
 
-###Using the CFG
+### Using the CFG
 
 CFG의 코어는 [NetworkX](https://networkx.github.io/) di-graph입니다. 즉, 모든 일반 NetworkX API들을 사용할 수 있다는 말이 되겠죠.
 
@@ -101,16 +101,16 @@ CFG 그래프의 노드는 CFGNode 클래스의 인스턴스입니다. context s
 >>> print "Successors (and type of jump) of the entry point:", [ jumpkind + " to " + str(node.addr) for node,jumpkind in cfg.get_successors_and_jumpkind(entry_node) ]
 ```
 
-###Viewing the CFG
+### Viewing the CFG
 
 CFG의 렌더링은 어려운 문제입니다. angr은 CFG 분석 결과를 렌더링하기 위한 built-in 메커니즘을 제공하지 않습니다. 그리고 matplotlib와 같은 기존의 그래프 렌더링 라이브러리를 사용하려고 시도한다면 이미지를 사용할 수 없는 결과를 초래하게 됩니다.
 angr CFG를 보기 위한 하나의 솔루션은 [axt's angr-utils repository](https://github.com/axt/angr-utils)입니다.
 
-###Shared Libraries
+### Shared Libraries
 
 CFG 분석은 서로 다른 이진 객체의 코드 흐름을 구분하지 않습니다. 즉, 이것은 기본적으로 로드된 공유 라이브러리를 통해 control flow를 분석하려고 시도한다는 것입니다. 분석 시간을 며칠로 연장할 것이기 때문에 이것은 의도된 행동이 아닙니다. 공유 라이브러리 없이 바이너리를 로드하기 위해서는 Project constructor에 다음의 키워드 인자를 추가하세요: `load\_options={'auto\_load\_libs': False}`
 
-###Function Manager
+### Function Manager
 CFG의 결과는 `cfg.kb.functions`를 통해 접근할 수 있는 Function Manager라고 불리는 오브젝트를 생성합니다. 이 객체를 가장 일반적으로 사용하는 경우는 dictionary와 같은 것에 접근하는 것입니다. 이것은 주소를 `Function` 객체에 매핑합니다. 이 객체는 함수에 대한 속성을 알려줍니다.
 
 ```python
