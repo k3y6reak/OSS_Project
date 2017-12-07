@@ -71,11 +71,70 @@ angr는 breakpoint를 지원합니다.
 | address_concretization | 심볼릭 메모리 접근 |
 
 이벤트 들은 다른 속성을 나타냅니다.
+
 | 이벤트 | 속성 이름 | 가능한 속성 | 속성 의미 |
-| --- | --- | ---| ---|
+| --- | --- | ---| --- |
 | mem_read | mem_read_address | BP_BEFORE 또는 BP_AFTER | 메모리에서 읽음 |
 | mem_read | mem_read_length | BP_BEFORE 또는 BP_AFTER | 메모리 읽기의 길이 |
-| mem_read | mem_read_expr | BP_AFTER | 주소 표현 |
+| mem_read | mem_read_expr | BP_AFTER | 읽는 주소 표현 |
 | mem_write | mem_write_address | BP_BEFORE 또는 BP_AFTER | 메모리 쓰기 |
 | mem_write | mem_write_length | BP_BEFORE 또는 BP_AFTER | 메모리 쓰기 길이 |
-| mem_write | mem_write_length | BP_BEFORE 또는 BP_AFTER | 메모리 쓰기 길이 |
+| mem_write | mem_write_expr | BP_BEFORE 또는 BP_AFTER | 쓰는 주소 표현 
+| reg_read | reg_read_offset | BP_BEFORE 또는 BP_AFTER | 레지스터에서 읽음 |
+| reg_read | reg_read_length | BP_BEFORE 또는 BP_AFTER | 레지스터 읽기의 길이 |
+| reg_read | reg_read_expr | BP_AFTER | 레지스터 표현 |
+| reg_write | reg_write_offset | BP_BEFORE 또는 BP_AFTER | 레지스터에 쓰기 |
+| reg_write | reg_write_length | BP_BEFORE 또는 BP_AFTER | 레지스터 쓰기 길이 |
+| reg_write | reg_write_expr | BP_BEFORE 또는 BP_AFTER | 쓰는 주소 표현 |
+| tmp_read | tmp_read_num | BP_BEFORE 또는 BP_AFTER | temp 읽는 수 |
+| tmp_read | tmp_read_expr | BP_AFTER | temp 표현 |
+| tmp_write | tmp_write_num | BP_BEFORE 또는 BP_AFTER | temp 쓰는 수 |
+| tmp_write | tmp_write_length | BP_AFTER | temp 쓰기 표현 |
+| expr | expr | BP_AFTER | 표현 수 |
+| statement | statement | BP_BFORE 또는 BP_AFTER | ID 상태의 인덱스 |
+| call | function_address | BP_BEFORE or BP_AFTER | 호출된 함수의 이름 |
+| exit | exit_target | BP_BEFORE or BP_AFTER | SimExit의 표현 |
+| exit | exit_guard | BP_BEFORE or BP_AFTER | SimExit의 보호 표현 |
+| exit | jumpkind | BP_BEFORE or BP_AFTER | SimExit의 종류 표현 |
+| symbolic_variable | symbolic_name | BP_BEFORE or BP_AFTER | 만들어진 심볼릭 변수 이름. solver 엔진이 이름을 수정할 수 있음. 마지막 심볼릭 표현을 위한 symbolic_expr 확인 |
+| symbolic_variable | symbolic_size | BP_BEFORE or BP_AFTER | 만들어진 심볼릭 변수의 크기 |
+| symbolic_variable | symbolic_expr | BP_AFTER | 심볼릭 변수의 표현 |
+| address_concretization | address_concretization_strategy | BP_BEFORE or BP_AFTER | SimConcretizationStrategy는 주소를 해결합니다. breakpoint에 의해 수정될 수 있습니다. breakpoint 핸들러가 None이면 생략됩니다. |
+| address_concretization | address_concretization_action | BP_BEFORE or BP_AFTER | 메모리 활동에 사용된 SimAction |
+| address_concretization | address_concretization_memory | BP_BEFORE or BP_AFTER | 메모리에서 가져오는 SimMemory 객체 |
+| address_concretization | address_concretization_expr | BP_BEFORE or BP_AFTER | AST는 메모리 인덱스를 표현합니다. breakpoint는 주소를 해결하는데 영향을 줍니다. | 
+| address_concretization | address_concretization_add_constraints | BP_BEFORE or BP_AFTER | 강제하거나 안하는 경우 읽을 때 추가할 수 있습니다. |
+| address_concretization | address_concretization_result | BP_AFTER | 메모리 주소를 정수형을로 표현합니다. breakpoint는 다른 결과에 덮어쓸 수 있습니다. |
+
+위 속성은 breakpoint 콜백 중에 `state.inspect`으로 적절한 값에 접근할 수 있습니다. 이 값을 변경하여 수정할 수 있습니다.
+
+```python
+>>> def track_reads(state):
+...     print 'Read', state.inspect.mem_read_expr, 'from', state.inspect.mem_read_address
+...
+>>> s.inspect.b('mem_read', when=angr.BP_AFTER, action=track_reads)
+```
+
+추가적으로 각각의 `inspect.b` 키워드 인수로 사용하여 breakpoint를 조건에 맞춰 사용할 수 있습니다.
+
+```python
+# This will break before a memory write if 0x1000 is a possible value of its target expression
+>>> s.inspect.b('mem_write', mem_write_address=0x1000)
+
+# This will break before a memory write if 0x1000 is the *only* value of its target expression
+>>> s.inspect.b('mem_write', mem_write_address=0x1000, mem_write_address_unique=True)
+
+# This will break after instruction 0x8000, but only 0x1000 is a possible value of the last expression that was read from memory
+>>> s.inspect.b('instruction', when=angr.BP_AFTER, instruction=0x8000, mem_read_expr=0x1000)
+```
+
+사실, 조건으로 함수를 지정할 수 있습니다.
+
+```python
+# this is a complex condition that could do anything! In this case, it makes sure that RAX is 0x41414141 and
+# that the basic block starting at 0x8004 was executed sometime in this path's history
+>>> def cond(state):
+...     return state.eval(state.regs.rax, cast_to=str) == 'AAAA' and 0x8004 in state.inspect.backtrace
+
+>>> s.inspect.b('mem_write', condition=cond)
+```
