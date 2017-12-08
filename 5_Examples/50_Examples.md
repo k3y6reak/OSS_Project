@@ -156,13 +156,13 @@ WARNING | 2017-12-08 20:00:44,866 | simuvex.plugins.symbolic_memory | Concretizi
 
 baby-re는 IDA로 디컴파일한 결과를 보면 아래와 같다.
 
-![baby_re_1](http://)
+![baby_re_1](https://github.com/k3y6reak/OSS_Project/blob/master/img/baby_re_1.png)
 
 0부터 12까지 총 13개의 값을 입력하고 `CeckSolution` 값이 true가 돼야 flag를 출력해준다.
 
 구조를 살펴보면 아래와 같다.
 
-![baby_re_2](http://)
+![baby_re_2](https://github.com/k3y6reak/OSS_Project/blob/master/img/baby_re_2.png)
 
 flag를 출력해 주는 부분과 wrong을 출력해 주는 부분이 있는 것을 알 수 있다. find는 `0x40294b` avoid는 `0x402941`로 하면 된다.
 
@@ -181,4 +181,4 @@ if __name__ == '__main__':
 
 위 python 코드를 작성하여 실행하면 아래와 같이 Math is hard!가 출력된다.
 
-![baby_re_3](http://)
+![baby_re_3](https://github.com/k3y6reak/OSS_Project/blob/master/img/baby_re_3.png)
